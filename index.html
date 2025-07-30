@@ -1,103 +1,853 @@
-import React from 'react';
-import { Shield } from 'lucide-react';
-
-const services = [
-  {
-    id: 'standard',
-    name: 'Standard Scooty Ride',
-    description: 'Safe, comfortable scooty rides exclusively for women, by women. Perfect for daily commutes and short trips.',
-    icon: <span role="img" aria-label="scooty">🛵</span>,
-    features: ['Female-to-female rides', 'Verified women drivers', 'Real-time tracking', 'Affordable pricing'],
-    image: 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
-  },
-  {
-    id: 'premium',
-    name: 'Premium Scooty Ride',
-    description: 'Premium scooty rides with extra comfort and safety features. Ideal for longer journeys and special occasions.',
-    icon: <span role="img" aria-label="scooty">🛵</span>,
-    features: ['Priority support', 'Helmet provided', 'Sanitized vehicle', 'Insurance included'],
-    image: 'https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
-  },
-  {
-    id: 'delivery',
-    name: 'Parcel Delivery',
-    description: 'Fast and secure parcel delivery service by women riders. Send packages safely across the city.',
-    icon: <span role="img" aria-label="parcel">📦</span>,
-    features: ['Doorstep pickup & drop', 'Live parcel tracking', 'Female delivery partners', 'Timely delivery'],
-    image: 'https://images.pexels.com/photos/1933239/pexels-photo-1933239.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
-  }
-];
-
-const ScootyServices = () => {
-  return (
-    <section id="services" className="py-16 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">Our Scooty Services</h2>
-          <p className="text-text max-w-2xl mx-auto">
-            We offer a range of scooty services for women, by women—whether you need a ride, a premium experience, or a parcel delivered.
-          </p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stree Admin Panel</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(120deg, #18122B 0%, #8A2BE2 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+    .bg-anim {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-anim span {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.18;
+      filter: blur(12px);
+      animation: float 12s infinite alternate;
+    }
+    .bg-anim .s1 { width: 400px; height: 400px; background: #FF1493; left: 5vw; top: 10vh; animation-delay: 0s; }
+    .bg-anim .s2 { width: 300px; height: 300px; background: #8A2BE2; right: 8vw; top: 20vh; animation-delay: 2s; }
+    .bg-anim .s3 { width: 250px; height: 250px; background: #FFB6C1; left: 30vw; bottom: 8vh; animation-delay: 4s; }
+    @keyframes float {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-40px) scale(1.08); }
+    }
+    #landingPage {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+      padding: 0 0 0 7vw;
+      background: transparent;
+      transition: opacity 0.7s cubic-bezier(.4,2,.6,1), visibility 0.7s;
+    }
+    .landing-content {
+      max-width: 600px;
+      z-index: 3;
+      animation: fadeInLeft 1.2s cubic-bezier(.4,2,.6,1);
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .landing-title {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(90deg,#FF1493,#8A2BE2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.2rem;
+      letter-spacing: 2px;
+    }
+    .landing-desc {
+      font-size: 1.3rem;
+      color: #fff;
+      opacity: 0.92;
+      margin-bottom: 2.5rem;
+      font-weight: 500;
+      line-height: 1.6;
+      text-shadow: 0 2px 8px #8A2BE233;
+    }
+    .admin-login-btn {
+      background: linear-gradient(90deg, #FF1493 0%, #8A2BE2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 1.2rem;
+      padding: 1.1rem 2.8rem;
+      font-weight: 700;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 24px #8A2BE244;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      margin-top: 1.5rem;
+      letter-spacing: 1px;
+    }
+    .admin-login-btn:hover {
+      box-shadow: 0 8px 32px #FF149366;
+      transform: translateY(-2px) scale(1.04);
+    }
+    .landing-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8vw;
+      z-index: 3;
+    }
+    #adminLogin {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      background: rgba(24,18,43,0.55);
+      backdrop-filter: blur(6px);
+      animation: fadeIn 0.7s cubic-bezier(.4,2,.6,1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    #adminLoginBox {
+      background: rgba(255,255,255,0.13);
+      color: #fff;
+      border-radius: 2rem;
+      box-shadow: 0 8px 32px rgba(138,43,226,0.18);
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
+      min-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      animation: fadeInUp 0.7s cubic-bezier(.4,2,.6,1);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #adminLoginBox h2 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #FF1493;
+      letter-spacing: 1px;
+    }
+    .admin-input {
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      margin-bottom: 1.2rem;
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.18);
+      color: #222;
+      font-weight: 600;
+    }
+    .admin-btn {
+      background: linear-gradient(90deg, #FF1493 0%, #8A2BE2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 0.75rem;
+      padding: 0.85rem 1.5rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px rgba(138,43,226,0.10);
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.5rem;
+      letter-spacing: 1px;
+    }
+    .admin-btn:hover {
+      box-shadow: 0 4px 16px rgba(138,43,226,0.18);
+      transform: translateY(-2px);
+    }
+    #adminDashboard {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0; left: 0;
+      background: #18122B;
+      z-index: 20;
+      animation: fadeIn 0.7s cubic-bezier(.4,2,.6,1);
+    }
+    #adminHeader {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(24,18,43,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 20;
+      box-shadow: 0 2px 12px #8A2BE233;
+    }
+    #adminHeader h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(90deg,#FF1493,#8A2BE2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    #adminStats {
+      display: flex;
+      gap: 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(24,18,43,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    .modal {
+      background: #fff;
+      color: #222;
+      border-radius: 1.2rem;
+      box-shadow: 0 8px 32px #8A2BE244;
+      padding: 2rem 2.5rem 1.5rem 2.5rem;
+      min-width: 320px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: fadeInUp 0.4s;
+    }
+    .modal h3 {
+      margin-top: 0;
+      color: #8A2BE2;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 1.2rem;
+    }
+    .modal label {
+      font-weight: 600;
+      margin-top: 1rem;
+      display: block;
+    }
+    .modal input, .modal select {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border-radius: 0.7rem;
+      border: 1px solid #8A2BE244;
+      margin-top: 0.3rem;
+      margin-bottom: 1.1rem;
+      font-size: 1.1rem;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+    .modal-btn {
+      background: linear-gradient(90deg,#FF1493,#8A2BE2);
+      color: #fff;
+      border: none;
+      border-radius: 0.7rem;
+      padding: 0.7rem 1.7rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: box-shadow 0.18s, transform 0.18s;
+    }
+    .modal-btn:hover {
+      box-shadow: 0 2px 8px #FF149366;
+      transform: translateY(-1px) scale(1.04);
+    }
+    /* Sidebar for admin sections */
+    #adminSidebar {
+      position: absolute;
+      top: 64px;
+      left: 0;
+      width: 260px;
+      height: calc(100vh - 64px);
+      background: rgba(24,18,43,0.98);
+      border-right: 1.5px solid #8A2BE244;
+      z-index: 21;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1.5rem;
+      box-shadow: 2px 0 16px #8A2BE211;
+    }
+    .sidebar-section {
+      padding: 1.1rem 2rem;
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: #fff;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      border-radius: 0 1.2rem 1.2rem 0;
+      margin-bottom: 0.2rem;
+    }
+    .sidebar-section.active, .sidebar-section:hover {
+      background: linear-gradient(90deg,#8A2BE2 0%,#FF1493 100%);
+      color: #fff;
+    }
+    /* Main panel for admin content */
+    #adminMainPanel {
+      position: absolute;
+      top: 64px;
+      left: 260px;
+      right: 0;
+      bottom: 0;
+      z-index: 22;
+      padding: 2.2rem 2.5rem 2.2rem 2.5rem;
+      overflow-y: auto;
+      background: rgba(24,18,43,0.97);
+    }
+    .admin-section {
+      display: none;
+      animation: fadeInUp 0.7s cubic-bezier(.4,2,.6,1);
+    }
+    .admin-section.active {
+      display: block;
+    }
+    .section-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin-bottom: 1.2rem;
+      color: #FF1493;
+      letter-spacing: 1px;
+    }
+    .section-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.04);
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .section-table th, .section-table td {
+      padding: 0.85rem 1.1rem;
+      text-align: left;
+      border-bottom: 1px solid #8A2BE222;
+      color: #fff;
+    }
+    .section-table th {
+      background: rgba(255,255,255,0.08);
+      color: #FFB6C1;
+      font-weight: 700;
+    }
+    .section-table tr:last-child td {
+      border-bottom: none;
+    }
+    .fare-edit-btn, .refund-btn, .payout-btn {
+      background: linear-gradient(90deg,#FF1493,#8A2BE2);
+      color: #fff;
+      border: none;
+      border-radius: 0.6rem;
+      padding: 0.4rem 1.1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      transition: box-shadow 0.18s, transform 0.18s;
+    }
+    .fare-edit-btn:hover, .refund-btn:hover, .payout-btn:hover {
+      box-shadow: 0 2px 8px #FF149366;
+      transform: translateY(-1px) scale(1.04);
+    }
+    .analytics-cards {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .analytics-card {
+      background: linear-gradient(120deg,#8A2BE2 0%,#FF1493 100%);
+      color: #fff;
+      border-radius: 1.2rem;
+      padding: 1.5rem 2.2rem;
+      min-width: 220px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      box-shadow: 0 2px 12px #8A2BE233;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+    }
+    .analytics-card .icon {
+      font-size: 2.2rem;
+      margin-right: 0.7rem;
+      opacity: 0.85;
+    }
+    .analytics-card.rides { background: linear-gradient(90deg,#8A2BE2,#FFB300); }
+    .analytics-card.users { background: linear-gradient(90deg,#FF1493,#00C9A7); }
+    .analytics-card.earnings { background: linear-gradient(90deg,#00C9A7,#8A2BE2); }
+    .analytics-card.avgfare { background: linear-gradient(90deg,#FFB300,#FF1493); }
+    .analytics-charts {
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .analytics-chart-box {
+      background: rgba(255,255,255,0.07);
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.7rem 1.2rem 1.7rem;
+      min-width: 320px;
+      flex: 1;
+      box-shadow: 0 2px 12px #8A2BE233;
+      margin-bottom: 1.2rem;
+    }
+    .analytics-chart-box h4 {
+      color: #FFB6C1;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+    }
+    @media (max-width: 1100px) {
+      #adminSidebar { width: 180px; }
+      #adminMainPanel { left: 180px; padding: 1.2rem 0.7rem 1.2rem 1.2rem; }
+    }
+    @media (max-width: 900px) {
+      #landingPage { flex-direction: column; justify-content: center; align-items: flex-start; padding: 0 0 0 0; }
+      .landing-content { max-width: 90vw; margin-left: 5vw; }
+      .landing-right { padding-right: 0; margin-top: 2rem; }
+      #adminSidebar { width: 100vw; height: auto; flex-direction: row; position: fixed; top: 64px; left: 0; right: 0; border-right: none; border-bottom: 1.5px solid #8A2BE244; box-shadow: 0 2px 16px #8A2BE211; padding-top: 0; }
+      .sidebar-section { border-radius: 0; padding: 1rem 0.7rem; margin-bottom: 0; flex: 1; text-align: center; }
+      #adminMainPanel { left: 0; top: 120px; padding: 1.2rem 0.7rem; }
+      .analytics-charts { flex-direction: column; gap: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-anim">
+    <span class="s1"></span>
+    <span class="s2"></span>
+    <span class="s3"></span>
+  </div>
+  <div id="landingPage">
+    <div class="landing-content">
+      <div class="landing-title">Stree Admin Panel</div>
+      <div class="landing-desc">
+        Welcome to the premium Stree Admin Dashboard.<br>
+        Monitor all drivers and rides in real time, view live locations, and manage your platform with confidence.<br><br>
+        <span style="color:#FFB6C1;font-weight:600;">Secure. Fast. Modern.</span>
+      </div>
+    </div>
+    <div class="landing-right">
+      <button class="admin-login-btn" id="showAdminLogin">Admin Login</button>
+    </div>
+  </div>
+  <div id="adminLogin">
+    <form id="adminLoginBox">
+      <h2>Admin Login</h2>
+      <input type="text" id="adminUsername" class="admin-input" placeholder="Admin Username" autocomplete="username" required />
+      <input type="password" id="adminPassword" class="admin-input" placeholder="Admin Password" autocomplete="current-password" required />
+      <button type="submit" class="admin-btn">Sign In</button>
+      <p id="adminLoginError" style="color:#FF1493;margin-top:1rem;display:none;"></p>
+      <div style="margin-top:1.5rem;font-size:0.95rem;color:#fff;text-align:center;opacity:0.7;">
+        Only authorized administrators can access the dashboard.<br>
+        Please use your admin credentials.
+      </div>
+    </form>
+  </div>
+  <div id="modalOverlay"></div>
+  <div id="adminDashboard">
+    <div id="adminHeader">
+      <h1>Stree Admin Dashboard</h1>
+      <div id="adminStats">
+        <span id="activeDrivers">Active Drivers: 0</span>
+        <span id="activeRides">Active Rides: 0</span>
+      </div>
+      <button id="adminLogout" class="admin-btn" style="width:auto;padding:0.5rem 1.2rem;font-size:1rem;">Logout</button>
+    </div>
+    <div id="adminSidebar">
+      <button class="sidebar-section active" data-section="userMgmt">User Management</button>
+      <button class="sidebar-section" data-section="rideMgmt">Ride Management</button>
+      <button class="sidebar-section" data-section="fareMgmt">Fare Management</button>
+      <button class="sidebar-section" data-section="paymentTracking">Payment Tracking</button>
+      <button class="sidebar-section" data-section="analytics">Analytics</button>
+      <button class="sidebar-section" data-section="mapSection">Map</button>
+    </div>
+    <div id="adminMainPanel">
+      <div class="admin-section active" id="userMgmt">
+        <div class="section-title">User Management</div>
+        <table class="section-table" id="userTable">
+          <thead><tr><th>User ID</th><th>Name</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr data-id="drv1"><td>drv1</td><td>Asha</td><td>Driver</td><td class="status">Active</td><td><button class="fare-edit-btn edit-user">Edit</button> <button class="fare-edit-btn suspend-user">Suspend</button></td></tr>
+            <tr data-id="drv2"><td>drv2</td><td>Priya</td><td>Driver</td><td class="status">Active</td><td><button class="fare-edit-btn edit-user">Edit</button> <button class="fare-edit-btn suspend-user">Suspend</button></td></tr>
+            <tr data-id="drv3"><td>drv3</td><td>Meena</td><td>Driver</td><td class="status">Active</td><td><button class="fare-edit-btn edit-user">Edit</button> <button class="fare-edit-btn suspend-user">Suspend</button></td></tr>
+            <tr data-id="rdr1"><td>rdr1</td><td>Riya</td><td>Rider</td><td class="status">Active</td><td><button class="fare-edit-btn edit-user">Edit</button> <button class="fare-edit-btn suspend-user">Suspend</button></td></tr>
+            <tr data-id="rdr2"><td>rdr2</td><td>Neha</td><td>Rider</td><td class="status">Suspended</td><td><button class="fare-edit-btn edit-user">Edit</button> <button class="fare-edit-btn activate-user">Activate</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-section" id="rideMgmt">
+        <div class="section-title">Ride Management</div>
+        <table class="section-table" id="rideTable">
+          <thead><tr><th>Ride ID</th><th>Pickup</th><th>Status</th><th>Driver</th><th>Rider</th><th>Fare</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr data-id="ride1"><td>ride1</td><td>MG Road</td><td>Ongoing</td><td>Asha</td><td>Riya</td><td>₹120</td><td><button class="fare-edit-btn view-ride">View</button></td></tr>
+            <tr data-id="ride2"><td>ride2</td><td>Indiranagar</td><td>Ongoing</td><td>Priya</td><td>Neha</td><td>₹150</td><td><button class="fare-edit-btn view-ride">View</button></td></tr>
+            <tr data-id="ride3"><td>ride3</td><td>Koramangala</td><td>Completed</td><td>Meena</td><td>Riya</td><td>₹110</td><td><button class="fare-edit-btn view-ride">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-section" id="fareMgmt">
+        <div class="section-title">Fare Management</div>
+        <table class="section-table" id="fareTable">
+          <thead><tr><th>Type</th><th>Value</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr data-type="Base Fare"><td>Base Fare</td><td class="fare-value">₹50</td><td><button class="fare-edit-btn edit-fare">Edit</button></td></tr>
+            <tr data-type="Per KM"><td>Per KM</td><td class="fare-value">₹12</td><td><button class="fare-edit-btn edit-fare">Edit</button></td></tr>
+            <tr data-type="Surge Pricing"><td>Surge Pricing</td><td class="fare-value">1.5x (Peak 6-9pm)</td><td><button class="fare-edit-btn edit-fare">Edit</button></td></tr>
+            <tr data-type="Discount"><td>Discount</td><td class="fare-value">10% (First Ride)</td><td><button class="fare-edit-btn edit-fare">Edit</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-section" id="paymentTracking">
+        <div class="section-title">Payment Tracking</div>
+        <table class="section-table" id="paymentTable">
+          <thead><tr><th>Transaction ID</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr data-id="txn101"><td>txn101</td><td>Riya</td><td>Ride Payment</td><td>₹120</td><td class="pay-status">Completed</td><td><button class="refund-btn refund-pay">Refund</button></td></tr>
+            <tr data-id="txn102"><td>txn102</td><td>Priya</td><td>Payout</td><td>₹300</td><td class="pay-status">Pending</td><td><button class="payout-btn process-pay">Process</button></td></tr>
+            <tr data-id="txn103"><td>txn103</td><td>Neha</td><td>Refund</td><td>₹50</td><td class="pay-status">Completed</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-section" id="analytics">
+        <div class="section-title">Analytics & Reports</div>
+        <div class="analytics-cards">
+          <div class="analytics-card rides"><span class="icon">🚗</span> <span><div>Total Rides</div><div style="font-size:1.5rem;font-weight:900;">1,250</div></span></div>
+          <div class="analytics-card users"><span class="icon">👥</span> <span><div>Active Users</div><div style="font-size:1.5rem;font-weight:900;">320</div></span></div>
+          <div class="analytics-card earnings"><span class="icon">💰</span> <span><div>Total Earnings</div><div style="font-size:1.5rem;font-weight:900;">₹1,85,000</div></span></div>
+          <div class="analytics-card avgfare"><span class="icon">📊</span> <span><div>Avg. Ride Fare</div><div style="font-size:1.5rem;font-weight:900;">₹135</div></span></div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {services.map((service) => (
-            <div 
-              key={service.id} 
-              className="bg-white rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={service.image} 
-                  alt={service.name}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="bg-primary-light p-3 rounded-full text-primary mr-4">
-                    {service.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold text-primary-dark">{service.name}</h3>
-                </div>
-                <p className="text-text mb-6">{service.description}</p>
-                <div className="space-y-2">
-                  {service.features.map((feature, index) => (
-                    <div key={index} className="flex items-start">
-                      <div className="text-accent mr-2 mt-1">
-                        <Shield size={16} />
-                      </div>
-                      <span className="text-text">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-                <button className="mt-6 w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                  Book Now
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA Banner */}
-        <div className="mt-16 bg-gradient-to-r from-primary to-accent rounded-xl p-8 text-white text-center">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-2xl font-bold mb-2">Need a scooty ride right now?</h3>
-              <p className="text-white/90">Our women riders are available 24/7 for your safety and convenience.</p>
-            </div>
-            <div className="flex space-x-4">
-              <a href="#" className="bg-white text-primary hover:bg-gray-100 font-semibold py-3 px-8 rounded-full transition-colors">
-                Call Now
-              </a>
-              <a href="#" className="bg-primary-dark border border-white hover:bg-accent text-white font-semibold py-3 px-8 rounded-full transition-colors">
-                Book Online
-              </a>
-            </div>
+        <div class="analytics-charts">
+          <div class="analytics-chart-box">
+            <h4>Rides per Day</h4>
+            <canvas id="ridesChart" width="320" height="180"></canvas>
+          </div>
+          <div class="analytics-chart-box">
+            <h4>Earnings per Day</h4>
+            <canvas id="earningsChart" width="320" height="180"></canvas>
           </div>
         </div>
+        <table class="section-table">
+          <thead><tr><th>Date</th><th>Rides</th><th>Earnings</th><th>New Users</th><th>Peak Hour</th></tr></thead>
+          <tbody>
+            <tr><td>2024-06-01</td><td>180</td><td>₹22,000</td><td>35</td><td>7-8pm</td></tr>
+            <tr><td>2024-06-02</td><td>210</td><td>₹25,500</td><td>42</td><td>6-7pm</td></tr>
+            <tr><td>2024-06-03</td><td>170</td><td>₹19,800</td><td>28</td><td>8-9pm</td></tr>
+          </tbody>
+        </table>
       </div>
-    </section>
-  );
-};
-
-export default ScootyServices;
+      <div class="admin-section" id="mapSection" style="height:calc(100vh - 64px - 40px);min-height:400px;">
+        <div class="section-title">Live Map</div>
+        <div id="map" style="height:calc(100vh - 64px - 120px);min-height:350px;"></div>
+      </div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    // Admin login logic
+    const landingPage = document.getElementById('landingPage');
+    const showAdminLoginBtn = document.getElementById('showAdminLogin');
+    const adminLogin = document.getElementById('adminLogin');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const adminLoginBox = document.getElementById('adminLoginBox');
+    const adminLoginError = document.getElementById('adminLoginError');
+    const adminLogout = document.getElementById('adminLogout');
+    showAdminLoginBtn.addEventListener('click', function() {
+      landingPage.style.opacity = 0;
+      landingPage.style.visibility = 'hidden';
+      setTimeout(() => {
+        landingPage.style.display = 'none';
+        adminLogin.style.display = 'flex';
+      }, 700);
+    });
+    adminLoginBox.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      if (username === 'stree' && password === 'stree') {
+        adminLogin.style.opacity = 0;
+        setTimeout(() => {
+          adminLogin.style.display = 'none';
+          adminDashboard.style.display = 'block';
+          setTimeout(() => {
+            if (document.querySelector('.sidebar-section.active').dataset.section === 'mapSection') initAdminMap();
+            if (document.querySelector('.sidebar-section.active').dataset.section === 'analytics') drawAnalyticsCharts();
+          }, 100);
+        }, 600);
+      } else {
+        adminLoginError.textContent = 'Invalid admin username or password';
+        adminLoginError.style.display = 'block';
+      }
+    });
+    adminLogout.addEventListener('click', function() {
+      adminDashboard.style.display = 'none';
+      landingPage.style.display = 'flex';
+      setTimeout(() => {
+        landingPage.style.opacity = 1;
+        landingPage.style.visibility = 'visible';
+      }, 10);
+      adminLoginBox.reset();
+      adminLoginError.style.display = 'none';
+    });
+    // Demo data for drivers and rides
+    const demoDrivers = [
+      { id: 'drv1', name: 'Asha', lat: 12.9716, lng: 77.5946 },
+      { id: 'drv2', name: 'Priya', lat: 12.975, lng: 77.59 },
+      { id: 'drv3', name: 'Meena', lat: 12.968, lng: 77.6 }
+    ];
+    const demoRiders = [
+      { id: 'rdr1', name: 'Riya', status: 'Active' },
+      { id: 'rdr2', name: 'Neha', status: 'Suspended' }
+    ];
+    const demoRides = [
+      { id: 'ride1', pickup: 'MG Road', lat: 12.973, lng: 77.595, status: 'Ongoing', driver: 'Asha', rider: 'Riya', fare: 120 },
+      { id: 'ride2', pickup: 'Indiranagar', lat: 12.978, lng: 77.64, status: 'Ongoing', driver: 'Priya', rider: 'Neha', fare: 150 },
+      { id: 'ride3', pickup: 'Koramangala', lat: 12.961, lng: 77.62, status: 'Completed', driver: 'Meena', rider: 'Riya', fare: 110 }
+    ];
+    // Modal logic
+    const modalOverlay = document.getElementById('modalOverlay');
+    function showModal(html) {
+      modalOverlay.innerHTML = `<div class='modal'>${html}</div>`;
+      modalOverlay.style.display = 'flex';
+    }
+    function closeModal() {
+      modalOverlay.style.display = 'none';
+      modalOverlay.innerHTML = '';
+    }
+    modalOverlay.onclick = function(e) {
+      if (e.target === modalOverlay) closeModal();
+    };
+    // User Management button logic
+    document.getElementById('userTable').onclick = function(e) {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      const id = tr.getAttribute('data-id');
+      const name = tr.children[1].textContent;
+      const role = tr.children[2].textContent;
+      const statusCell = tr.querySelector('.status');
+      if (e.target.classList.contains('edit-user')) {
+        showModal(`<h3>Edit User</h3>
+          <label>Name<input id='editUserName' value='${name}' /></label>
+          <label>Role
+            <select id='editUserRole'>
+              <option${role==='Driver'?' selected':''}>Driver</option>
+              <option${role==='Rider'?' selected':''}>Rider</option>
+            </select>
+          </label>
+          <div class='modal-actions'>
+            <button class='modal-btn' onclick='closeModal()'>Cancel</button>
+            <button class='modal-btn' id='saveUserBtn'>Save</button>
+          </div>`);
+        document.getElementById('saveUserBtn').onclick = function() {
+          tr.children[1].textContent = document.getElementById('editUserName').value;
+          tr.children[2].textContent = document.getElementById('editUserRole').value;
+          closeModal();
+        };
+      } else if (e.target.classList.contains('suspend-user')) {
+        showModal(`<h3>Suspend User</h3><div>Are you sure you want to suspend <b>${name}</b>?</div>
+          <div class='modal-actions'><button class='modal-btn' onclick='closeModal()'>Cancel</button>
+          <button class='modal-btn' id='confirmSuspend'>Suspend</button></div>`);
+        document.getElementById('confirmSuspend').onclick = function() {
+          statusCell.textContent = 'Suspended';
+          tr.querySelector('.suspend-user').style.display = 'none';
+          if (tr.querySelector('.activate-user')) tr.querySelector('.activate-user').style.display = '';
+          closeModal();
+        };
+      } else if (e.target.classList.contains('activate-user')) {
+        showModal(`<h3>Activate User</h3><div>Activate <b>${name}</b>?</div>
+          <div class='modal-actions'><button class='modal-btn' onclick='closeModal()'>Cancel</button>
+          <button class='modal-btn' id='confirmActivate'>Activate</button></div>`);
+        document.getElementById('confirmActivate').onclick = function() {
+          statusCell.textContent = 'Active';
+          tr.querySelector('.activate-user').style.display = 'none';
+          if (tr.querySelector('.suspend-user')) tr.querySelector('.suspend-user').style.display = '';
+          closeModal();
+        };
+      }
+    };
+    // Ride Management button logic
+    document.getElementById('rideTable').onclick = function(e) {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      if (e.target.classList.contains('view-ride')) {
+        const rideId = tr.children[0].textContent;
+        const pickup = tr.children[1].textContent;
+        const status = tr.children[2].textContent;
+        const driver = tr.children[3].textContent;
+        const rider = tr.children[4].textContent;
+        const fare = tr.children[5].textContent;
+        showModal(`<h3>Ride Details</h3>
+          <div><b>Ride ID:</b> ${rideId}</div>
+          <div><b>Pickup:</b> ${pickup}</div>
+          <div><b>Status:</b> ${status}</div>
+          <div><b>Driver:</b> ${driver}</div>
+          <div><b>Rider:</b> ${rider}</div>
+          <div><b>Fare:</b> ${fare}</div>
+          <div class='modal-actions'><button class='modal-btn' onclick='closeModal()'>Close</button></div>`);
+      }
+    };
+    // Fare Management button logic
+    document.getElementById('fareTable').onclick = function(e) {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      if (e.target.classList.contains('edit-fare')) {
+        const type = tr.children[0].textContent;
+        const value = tr.querySelector('.fare-value').textContent;
+        showModal(`<h3>Edit Fare</h3>
+          <div><b>${type}</b></div>
+          <label>Value<input id='editFareValue' value='${value.replace(/[^\d.x%() ]/g,"")}' /></label>
+          <div class='modal-actions'><button class='modal-btn' onclick='closeModal()'>Cancel</button>
+          <button class='modal-btn' id='saveFareBtn'>Save</button></div>`);
+        document.getElementById('saveFareBtn').onclick = function() {
+          tr.querySelector('.fare-value').textContent = document.getElementById('editFareValue').value;
+          closeModal();
+        };
+      }
+    };
+    // Payment Tracking button logic
+    document.getElementById('paymentTable').onclick = function(e) {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      if (e.target.classList.contains('refund-pay')) {
+        showModal(`<h3>Refund Payment</h3><div>Refund <b>${tr.children[3].textContent}</b> to <b>${tr.children[1].textContent}</b>?</div>
+          <div class='modal-actions'><button class='modal-btn' onclick='closeModal()'>Cancel</button>
+          <button class='modal-btn' id='confirmRefund'>Refund</button></div>`);
+        document.getElementById('confirmRefund').onclick = function() {
+          tr.querySelector('.pay-status').textContent = 'Refunded';
+          closeModal();
+        };
+      } else if (e.target.classList.contains('process-pay')) {
+        showModal(`<h3>Process Payout</h3><div>Process payout of <b>${tr.children[3].textContent}</b> to <b>${tr.children[1].textContent}</b>?</div>
+          <div class='modal-actions'><button class='modal-btn' onclick='closeModal()'>Cancel</button>
+          <button class='modal-btn' id='confirmPayout'>Process</button></div>`);
+        document.getElementById('confirmPayout').onclick = function() {
+          tr.querySelector('.pay-status').textContent = 'Completed';
+          closeModal();
+        };
+      }
+    };
+    // Sidebar navigation logic
+    const sidebarBtns = document.querySelectorAll('.sidebar-section');
+    const adminSections = document.querySelectorAll('.admin-section');
+    sidebarBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        sidebarBtns.forEach(b => b.classList.remove('active'));
+        adminSections.forEach(sec => sec.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.section).classList.add('active');
+        // If map tab is selected, (re)initialize the map
+        if (btn.dataset.section === 'mapSection') {
+          setTimeout(initAdminMap, 100);
+        }
+        // If analytics tab, (re)draw charts
+        if (btn.dataset.section === 'analytics') {
+          setTimeout(drawAnalyticsCharts, 100);
+        }
+      });
+    });
+    // Map and stats logic
+    let map;
+    function initAdminMap() {
+      const mapDiv = document.getElementById('map');
+      if (!mapDiv || !document.getElementById('mapSection').classList.contains('active')) return;
+      if (map) {
+        map.remove();
+      }
+      map = L.map('map').setView([12.9716, 77.5946], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      // Add driver markers
+      demoDrivers.forEach(driver => {
+        L.marker([driver.lat, driver.lng], {icon: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/194/194938.png', iconSize: [32,32], iconAnchor: [16,32]})})
+          .addTo(map)
+          .bindPopup(`<b>Driver Name:</b> ${driver.name}<br><b>Driver ID:</b> ${driver.id}`);
+      });
+      // Add ride markers
+      demoRides.forEach(ride => {
+        L.marker([ride.lat, ride.lng], {icon: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [32,32], iconAnchor: [16,32]})})
+          .addTo(map)
+          .bindPopup(`<b>Ride ID:</b> ${ride.id}<br><b>Pickup Location:</b> ${ride.pickup}`);
+      });
+      // Update stats
+      document.getElementById('activeDrivers').textContent = `Active Drivers: ${demoDrivers.length}`;
+      document.getElementById('activeRides').textContent = `Active Rides: ${demoRides.filter(r=>r.status==='Ongoing').length}`;
+      setTimeout(() => { map.invalidateSize(); }, 200);
+    }
+    // Analytics charts
+    function drawAnalyticsCharts() {
+      // Rides per day
+      const ridesCtx = document.getElementById('ridesChart').getContext('2d');
+      const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+      if (window.ridesChartObj) window.ridesChartObj.destroy();
+      if (window.earningsChartObj) window.earningsChartObj.destroy();
+      window.ridesChartObj = new Chart(ridesCtx, {
+        type: 'bar',
+        data: {
+          labels: ['2024-06-01', '2024-06-02', '2024-06-03'],
+          datasets: [{
+            label: 'Rides',
+            data: [180, 210, 170],
+            backgroundColor: '#8A2BE2',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#8A2BE244' } } },
+          responsive: false
+        }
+      });
+      window.earningsChartObj = new Chart(earningsCtx, {
+        type: 'line',
+        data: {
+          labels: ['2024-06-01', '2024-06-02', '2024-06-03'],
+          datasets: [{
+            label: 'Earnings',
+            data: [22000, 25500, 19800],
+            borderColor: '#FF1493',
+            backgroundColor: 'rgba(255,20,147,0.12)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#FF1493'
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#FF149344' } } },
+          responsive: false
+        }
+      });
+    }
+    // Draw charts on load if analytics is active
+    if (document.getElementById('analytics').classList.contains('active')) {
+      setTimeout(drawAnalyticsCharts, 200);
+    }
+  </script>
+</body>
+</html>
